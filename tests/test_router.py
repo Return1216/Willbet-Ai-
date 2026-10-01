@@ -45,3 +45,13 @@ def test_route_falls_back_for_unknown_or_low_confidence():
     assert low.id == "global.fallback"
     assert low.clarification
     assert low.need_realtime_data is False
+
+
+def test_route_uses_configured_confidence_threshold():
+    catalog = load_catalog(Path(r"C:\Users\Lyy\Desktop\RAG_AGENT\catalog\intent-tree-v1.json"))
+    decision = route_intent(
+        "提现到哪里了？", {}, {}, catalog,
+        FakeClient({"intent": "wallet.withdrawal.status.01", "confidence": 0.80}),
+        threshold=0.85,
+    )
+    assert decision.id == "global.fallback"

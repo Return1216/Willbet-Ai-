@@ -56,6 +56,7 @@ def route_intent(
     catalog: Catalog,
     llm_client: Any,
     model: str = "deepseek-chat",
+    threshold: float = 0.75,
 ) -> IntentDecision:
     prompt = (
         "你是 WillBet AI 意图路由器。只能从候选列表中选择一个 intent。"
@@ -91,7 +92,7 @@ def route_intent(
 
     if intent_id not in catalog.by_id:
         return _fallback(catalog, confidence)
-    if confidence < 0.75:
+    if confidence < threshold:
         return _fallback(catalog, confidence, "你是想了解规则、查询当前状态，还是打开某个功能？")
 
     intent: Intent = catalog.by_id[intent_id]
@@ -102,3 +103,5 @@ def route_intent(
         required_context=list(intent.required_context),
         action=intent.action,
     )
+
+
