@@ -1,3 +1,5 @@
+"""意图目录加载、合法路由和安全回退测试。"""
+
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -7,6 +9,7 @@ from app.router import route_intent
 
 
 class FakeClient:
+    """把指定字典包成 SDK 响应结构，便于测试模型输出校验。"""
     def __init__(self, payload):
         self.payload = payload
         self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.create))
@@ -16,13 +19,15 @@ class FakeClient:
 
 
 def test_catalog_has_all_intents():
-    catalog = load_catalog(Path(r"C:\Users\Lyy\Desktop\RAG_AGENT\catalog\intent-tree-v1.json"))
+    """确认当前意图树仍包含完整的 127 个意图。"""
+    catalog = load_catalog((Path(__file__).resolve().parents[1] / "catalog" / "intent-tree-v1.json"))
     assert len(catalog.intents) == 127
     assert catalog.by_id["wallet.withdrawal.status.01"].need_realtime_data is True
 
 
 def test_route_accepts_catalog_intent():
-    catalog = load_catalog(Path(r"C:\Users\Lyy\Desktop\RAG_AGENT\catalog\intent-tree-v1.json"))
+    """目录内且置信度足够的 ID 应被接受。"""
+    catalog = load_catalog((Path(__file__).resolve().parents[1] / "catalog" / "intent-tree-v1.json"))
     decision = route_intent(
         "提现到哪里了？",
         {"page": "wallet"},
@@ -36,7 +41,8 @@ def test_route_accepts_catalog_intent():
 
 
 def test_route_falls_back_for_unknown_or_low_confidence():
-    catalog = load_catalog(Path(r"C:\Users\Lyy\Desktop\RAG_AGENT\catalog\intent-tree-v1.json"))
+    """未知 ID 或低置信度必须回退到澄清意图。"""
+    catalog = load_catalog((Path(__file__).resolve().parents[1] / "catalog" / "intent-tree-v1.json"))
     unknown = route_intent("随便问问", {}, {}, catalog, FakeClient({"intent": "made.up", "confidence": 0.99}))
     assert unknown.id == "global.fallback"
     assert unknown.need_realtime_data is False
@@ -48,7 +54,8 @@ def test_route_falls_back_for_unknown_or_low_confidence():
 
 
 def test_route_uses_configured_confidence_threshold():
-    catalog = load_catalog(Path(r"C:\Users\Lyy\Desktop\RAG_AGENT\catalog\intent-tree-v1.json"))
+    """路由器应使用调用方传入的置信度阈值。"""
+    catalog = load_catalog((Path(__file__).resolve().parents[1] / "catalog" / "intent-tree-v1.json"))
     decision = route_intent(
         "提现到哪里了？", {}, {}, catalog,
         FakeClient({"intent": "wallet.withdrawal.status.01", "confidence": 0.80}),

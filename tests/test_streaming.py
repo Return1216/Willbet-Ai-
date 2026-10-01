@@ -1,3 +1,5 @@
+"""SSE 事件顺序、错误和上游流关闭测试。"""
+
 import asyncio
 import json
 from types import SimpleNamespace
@@ -9,6 +11,7 @@ from app.streaming import sse_encode, stream_answer
 
 
 class FakeStream:
+    """按给定顺序输出文本，记录关闭状态以验证资源释放。"""
     def __init__(self, contents):
         self.contents = list(contents)
         self.closed = False
@@ -27,6 +30,7 @@ class FakeStream:
 
 
 class FakeClient:
+    """返回预设流的异步模型客户端替身。"""
     def __init__(self, contents):
         self.stream = FakeStream(contents)
         self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.create))
@@ -36,6 +40,7 @@ class FakeClient:
 
 
 class FailingClient:
+    """创建流时直接抛异常，模拟上游不可用。"""
     def __init__(self):
         self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.create))
 
@@ -44,11 +49,13 @@ class FailingClient:
 
 
 def decision():
+    """构造这些流式测试共用的已识别提现意图。"""
     return IntentDecision("wallet.withdrawal.status.01", 0.92, True, ["user_id"], None)
 
 
 @pytest.mark.asyncio
 async def test_stream_emits_intent_tokens_done_and_sse_is_valid():
+    """正常回答应先发意图，再发 token，最后发 done。"""
     client = FakeClient(["你的提现", "正在处理中。"])
     events = [event async for event in stream_answer(
         "提现到哪里了？", decision(), {
@@ -63,6 +70,7 @@ async def test_stream_emits_intent_tokens_done_and_sse_is_valid():
 
 @pytest.mark.asyncio
 async def test_stream_error_is_structured():
+    """模型异常应转换为 error 事件，而不是让连接崩溃。"""
     events = [event async for event in stream_answer("问题", decision(), {}, FailingClient())]
     assert events[-1]["type"] == "error"
     assert "upstream unavailable" in events[-1]["message"]
@@ -70,6 +78,7 @@ async def test_stream_error_is_structured():
 
 @pytest.mark.asyncio
 async def test_closing_generator_closes_upstream_stream():
+    """客户端断开时，服务端要释放上游流。"""
     client = FakeClient(["token"])
     generator = stream_answer("问题", decision(), {}, client)
     assert (await generator.__anext__())["type"] == "intent"
@@ -79,6 +88,7 @@ async def test_closing_generator_closes_upstream_stream():
 
 @pytest.mark.asyncio
 async def test_collect_answer_returns_done_payload():
+    """非流式收集器应返回完整答案和会话 ID。"""
     from app.streaming import collect_answer
 
     client = FakeClient(["完成"])

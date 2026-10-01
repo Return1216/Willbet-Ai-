@@ -1,3 +1,8 @@
+"""本地实时数据 Mock 适配器。
+
+返回稳定的演示数据，便于前端联调；接入真实平台时保持同一返回结构即可替换。
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -6,12 +11,16 @@ from typing import Any
 
 @dataclass(frozen=True)
 class MockData:
+    """实时数据、数据源标记和可选的前端操作入口。"""
+
     data: dict[str, Any]
     data_source: str = "mock_platform"
     actions: list[dict[str, Any]] | None = None
 
 
 def _default_action(intent_id: str) -> dict[str, Any] | None:
+    """按意图域返回演示导航路径，由前端决定如何处理。"""
+
     if intent_id.startswith("wallet."):
         return {"label": "打开钱包", "type": "navigate", "target": "/wallet"}
     if intent_id.startswith("sports."):
@@ -28,6 +37,9 @@ def _default_action(intent_id: str) -> dict[str, Any] | None:
 
 
 def get_mock_data(intent_id: str, user_context: dict[str, Any], page_context: dict[str, Any]) -> MockData:
+    """为目录中的任意意图生成可重复的 Mock 响应。"""
+
+    # page_context 目前不参与演示数据计算；金额、状态和时间均为固定测试值。
     user_id = str(user_context.get("user_id", "demo-user-001"))
     data: dict[str, Any]
     if intent_id == "wallet.withdrawal.status.01":

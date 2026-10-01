@@ -1,3 +1,5 @@
+"""FastAPI 接口的流式、非流式、低置信度和错误路径测试。"""
+
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -11,6 +13,7 @@ from app.main import create_app
 
 
 class RouterClient:
+    """返回指定 JSON 的同步路由替身，不请求远程模型。"""
     def __init__(self, payload):
         self.payload = payload
         self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.create))
@@ -20,6 +23,7 @@ class RouterClient:
 
 
 class AnswerStream:
+    """只产生一个文本块的异步流，并记录是否已被关闭。"""
     def __init__(self, content="答案"):
         self.content = content
         self.closed = False
@@ -38,6 +42,7 @@ class AnswerStream:
 
 
 class AnswerClient:
+    """模拟异步 OpenAI 客户端的 chat.completions.create 接口。"""
     def __init__(self, content="答案"):
         self.content = content
         self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.create))
@@ -47,7 +52,9 @@ class AnswerClient:
 
 
 def make_app(router_payload, answer_client=None):
-    root = Path(r"C:\Users\Lyy\Desktop\RAG_AGENT")
+    """构造带固定路由和回答替身的 FastAPI 应用。"""
+    # 使用假的路由和回答客户端，测试 HTTP 编排而不依赖远程模型。
+    root = Path(__file__).resolve().parents[1]
     settings = load_settings(root)
     deps = AssistantDependencies(
         settings=settings,
@@ -60,6 +67,7 @@ def make_app(router_payload, answer_client=None):
 
 
 def test_streaming_chat_returns_sse_events():
+    """默认请求应返回合法的 SSE 事件流。"""
     app = make_app({"intent": "wallet.withdrawal.status.01", "confidence": 0.95})
     with TestClient(app) as client:
         response = client.post("/api/assistant/chat", json={"question": "提现到哪里了？", "user_context": {"user_id": "demo"}})
@@ -73,6 +81,7 @@ def test_streaming_chat_returns_sse_events():
 
 
 def test_non_stream_chat_returns_final_json():
+    """stream=false 应返回带意图和最终答案的 JSON。"""
     app = make_app({"intent": "wallet.withdrawal.status.01", "confidence": 0.95})
     with TestClient(app) as client:
         response = client.post("/api/assistant/chat", json={"question": "提现到哪里了？", "stream": False})
@@ -85,6 +94,7 @@ def test_non_stream_chat_returns_final_json():
 
 
 def test_low_confidence_does_not_call_mock_data():
+    """低置信度路由只澄清，不读取实时数据。"""
     app = make_app({"intent": "wallet.withdrawal.status.01", "confidence": 0.50})
     with TestClient(app) as client:
         response = client.post("/api/assistant/chat", json={"question": "不能提现"})
@@ -94,6 +104,7 @@ def test_low_confidence_does_not_call_mock_data():
     assert 'mock_platform' not in response.text
 
 class FailingAnswerClient:
+    """模拟模型请求失败，供 SSE 错误路径测试。"""
     def __init__(self):
         self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.create))
 
@@ -102,6 +113,7 @@ class FailingAnswerClient:
 
 
 def test_streaming_upstream_error_is_an_event():
+    """回答模型失败时，SSE 仍返回结构化 error 事件。"""
     app = make_app({"intent": "wallet.withdrawal.status.01", "confidence": 0.95}, FailingAnswerClient())
     with TestClient(app) as client:
         response = client.post("/api/assistant/chat", json={"question": "提现到哪里了？"})
