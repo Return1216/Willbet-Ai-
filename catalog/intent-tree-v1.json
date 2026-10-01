@@ -1,0 +1,2117 @@
+{
+  "schema_version": "1.0.0",
+  "name": "WillBet AI Intent Tree V1",
+  "source": "用户提供的 WillBet AI Intent Tree V1 图片",
+  "purpose": "用于意图识别、RAGFlow 路由和平台真实数据查询编排",
+  "routing": {
+    "steps": [
+      "先识别 domain",
+      "再识别 group 和 intent id",
+      "confidence < 0.75 时要求用户澄清",
+      "need_realtime_data=true 时调用 data_source，不允许模型猜测实时数据",
+      "need_realtime_data=false 时查询 RAGFlow 知识库",
+      "action 非空时在回答中提供对应操作入口"
+    ],
+    "default_fallback": {
+      "id": "global.fallback",
+      "name": "无法确定意图",
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "action": null,
+      "response": "请说明你是想了解规则、查询当前状态，还是打开某个功能。"
+    }
+  },
+  "domains": [
+    {
+      "id": "Sports",
+      "name": "体育",
+      "description": "赛事、盘口、投注、注单和结算"
+    },
+    {
+      "id": "Casino",
+      "name": "娱乐城",
+      "description": "游戏查找、玩法、厂商和游戏记录"
+    },
+    {
+      "id": "Wallet",
+      "name": "钱包",
+      "description": "充值、提现、流水和资金记录"
+    },
+    {
+      "id": "Promotion",
+      "name": "活动",
+      "description": "活动、奖励和优惠券"
+    },
+    {
+      "id": "VIP",
+      "name": "会员权益",
+      "description": "VIP 等级和权益"
+    },
+    {
+      "id": "Support",
+      "name": "帮助与反馈",
+      "description": "意见反馈"
+    },
+    {
+      "id": "Global",
+      "name": "全局服务",
+      "description": "导航、搜索和联系客服"
+    }
+  ],
+  "intents": [
+    {
+      "id": "sports.rules.odds.01",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 赔率",
+      "name": "欧盘赔率怎么看？",
+      "examples": [
+        "欧盘赔率怎么看？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.odds.02",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 赔率",
+      "name": "香港盘赔率怎么看？",
+      "examples": [
+        "香港盘赔率怎么看？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.odds.03",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 赔率",
+      "name": "为什么赔率会变化？",
+      "examples": [
+        "为什么赔率会变化？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.odds.04",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 赔率",
+      "name": "预计派奖怎么算？",
+      "examples": [
+        "预计派奖怎么算？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.market.01",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 盘口",
+      "name": "1X2是什么意思？",
+      "examples": [
+        "1X2是什么意思？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.market.02",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 盘口",
+      "name": "让球盘怎么看？",
+      "examples": [
+        "让球盘怎么看？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.market.03",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 盘口",
+      "name": "大小球怎么看？",
+      "examples": [
+        "大小球怎么看？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.market.04",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 盘口",
+      "name": "Moneyline怎么玩？",
+      "examples": [
+        "Moneyline怎么玩？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.market.05",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 盘口",
+      "name": "双方进球盘怎么看？",
+      "examples": [
+        "双方进球盘怎么看？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.market.06",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 盘口",
+      "name": "角球盘怎么看？",
+      "examples": [
+        "角球盘怎么看？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.market.07",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 盘口",
+      "name": "分时段盘口怎么看？",
+      "examples": [
+        "分时段盘口怎么看？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.market.08",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 盘口",
+      "name": "冠军盘怎么玩？",
+      "examples": [
+        "冠军盘怎么玩？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.bet_type.01",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 投注方式",
+      "name": "单关",
+      "examples": [
+        "单关"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.bet_type.02",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 投注方式",
+      "name": "串关",
+      "examples": [
+        "串关"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.rules.bet_type.03",
+      "domain": "Sports",
+      "group": "玩法与规则理解 / 投注方式",
+      "name": "系统串关",
+      "examples": [
+        "系统串关"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.search.match.01",
+      "domain": "Sports",
+      "group": "找比赛 / 找盘口 / 找比赛",
+      "name": "查找比赛",
+      "examples": [
+        "查找比赛"
+      ],
+      "need_realtime_data": true,
+      "data_source": "sports_catalog_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.search.match.02",
+      "domain": "Sports",
+      "group": "找比赛 / 找盘口 / 找比赛",
+      "name": "查找球队",
+      "examples": [
+        "查找球队"
+      ],
+      "need_realtime_data": true,
+      "data_source": "sports_catalog_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.search.match.03",
+      "domain": "Sports",
+      "group": "找比赛 / 找盘口 / 找比赛",
+      "name": "查找联赛",
+      "examples": [
+        "查找联赛"
+      ],
+      "need_realtime_data": true,
+      "data_source": "sports_catalog_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.search.market.01",
+      "domain": "Sports",
+      "group": "找比赛 / 找盘口 / 找盘口",
+      "name": "查找盘口",
+      "examples": [
+        "查找盘口"
+      ],
+      "need_realtime_data": true,
+      "data_source": "sports_catalog_api",
+      "required_context": [
+        "page_context",
+        "event_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.betslip.01",
+      "domain": "Sports",
+      "group": "Bet Slip | 投注单",
+      "name": "串关赔率怎么算？",
+      "examples": [
+        "串关赔率怎么算？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_slip_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.betslip.02",
+      "domain": "Sports",
+      "group": "Bet Slip | 投注单",
+      "name": "最多可以赢多少？",
+      "examples": [
+        "最多可以赢多少？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_slip_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.betslip.03",
+      "domain": "Sports",
+      "group": "Bet Slip | 投注单",
+      "name": "为什么有最低投注金额？",
+      "examples": [
+        "为什么有最低投注金额？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_slip_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.betslip.04",
+      "domain": "Sports",
+      "group": "Bet Slip | 投注单",
+      "name": "为什么最多只能下这么多？",
+      "examples": [
+        "为什么最多只能下这么多？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_slip_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.betslip.05",
+      "domain": "Sports",
+      "group": "Bet Slip | 投注单",
+      "name": "为什么这两个选择不能一起投注？",
+      "examples": [
+        "为什么这两个选择不能一起投注？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_slip_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet.status.01",
+      "domain": "Sports",
+      "group": "下注过程中 / 下单操作与状态",
+      "name": "怎么下注？",
+      "examples": [
+        "怎么下注？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet.status.02",
+      "domain": "Sports",
+      "group": "下注过程中 / 下单操作与状态",
+      "name": "为什么下注还在处理中？",
+      "examples": [
+        "为什么下注还在处理中？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet.status.03",
+      "domain": "Sports",
+      "group": "下注过程中 / 下单操作与状态",
+      "name": "怎么确认下注成功？",
+      "examples": [
+        "怎么确认下注成功？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet.status.04",
+      "domain": "Sports",
+      "group": "下注过程中 / 下单操作与状态",
+      "name": "为什么下注被拒绝？",
+      "examples": [
+        "为什么下注被拒绝？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet.status.05",
+      "domain": "Sports",
+      "group": "下注过程中 / 下单操作与状态",
+      "name": "为什么只成功了一部分？",
+      "examples": [
+        "为什么只成功了一部分？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet.status.06",
+      "domain": "Sports",
+      "group": "下注过程中 / 下单操作与状态",
+      "name": "为什么下注超时？",
+      "examples": [
+        "为什么下注超时？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet.failure.01",
+      "domain": "Sports",
+      "group": "下注过程中 / 为什么无法下注",
+      "name": "赔率发生变化",
+      "examples": [
+        "赔率发生变化"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet.failure.02",
+      "domain": "Sports",
+      "group": "下注过程中 / 为什么无法下注",
+      "name": "盘口暂时封盘",
+      "examples": [
+        "盘口暂时封盘"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet.failure.03",
+      "domain": "Sports",
+      "group": "下注过程中 / 为什么无法下注",
+      "name": "盘口已经关闭",
+      "examples": [
+        "盘口已经关闭"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet.failure.04",
+      "domain": "Sports",
+      "group": "下注过程中 / 为什么无法下注",
+      "name": "超过投注限额",
+      "examples": [
+        "超过投注限额"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet.failure.05",
+      "domain": "Sports",
+      "group": "下注过程中 / 为什么无法下注",
+      "name": "系统异常",
+      "examples": [
+        "系统异常"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_api",
+      "required_context": [
+        "user_id",
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.my_bets.settlement.01",
+      "domain": "Sports",
+      "group": "My Bets | 注单查询与结算 / 注单为什么这样结算",
+      "name": "这张注单是怎么结算的？",
+      "examples": [
+        "这张注单是怎么结算的？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_settlement_api",
+      "required_context": [
+        "user_id",
+        "bet_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.my_bets.settlement.02",
+      "domain": "Sports",
+      "group": "My Bets | 注单查询与结算 / 注单为什么这样结算",
+      "name": "为什么这张注单赢了？",
+      "examples": [
+        "为什么这张注单赢了？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_settlement_api",
+      "required_context": [
+        "user_id",
+        "bet_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.my_bets.settlement.03",
+      "domain": "Sports",
+      "group": "My Bets | 注单查询与结算 / 注单为什么这样结算",
+      "name": "为什么这张注单输了？",
+      "examples": [
+        "为什么这张注单输了？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_settlement_api",
+      "required_context": [
+        "user_id",
+        "bet_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.my_bets.settlement.04",
+      "domain": "Sports",
+      "group": "My Bets | 注单查询与结算 / 注单为什么这样结算",
+      "name": "为什么被判定为Void？",
+      "examples": [
+        "为什么被判定为Void？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_settlement_api",
+      "required_context": [
+        "user_id",
+        "bet_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.my_bets.settlement.05",
+      "domain": "Sports",
+      "group": "My Bets | 注单查询与结算 / 注单为什么这样结算",
+      "name": "为什么派奖是这个金额？",
+      "examples": [
+        "为什么派奖是这个金额？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_settlement_api",
+      "required_context": [
+        "user_id",
+        "bet_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.my_bets.settlement.06",
+      "domain": "Sports",
+      "group": "My Bets | 注单查询与结算 / 注单为什么这样结算",
+      "name": "为什么有效流水是这个金额？",
+      "examples": [
+        "为什么有效流水是这个金额？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "bet_settlement_api",
+      "required_context": [
+        "user_id",
+        "bet_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.my_bets.cashout.01",
+      "domain": "Sports",
+      "group": "My Bets | 注单查询与结算 / Cashout | 提前结算",
+      "name": "Cashout是什么？",
+      "examples": [
+        "Cashout是什么？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "cashout_api",
+      "required_context": [
+        "user_id",
+        "bet_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.my_bets.cashout.02",
+      "domain": "Sports",
+      "group": "My Bets | 注单查询与结算 / Cashout | 提前结算",
+      "name": "现在能不能Cashout？",
+      "examples": [
+        "现在能不能Cashout？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "cashout_api",
+      "required_context": [
+        "user_id",
+        "bet_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.my_bets.cashout.03",
+      "domain": "Sports",
+      "group": "My Bets | 注单查询与结算 / Cashout | 提前结算",
+      "name": "为什么不能Cashout？",
+      "examples": [
+        "为什么不能Cashout？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "cashout_api",
+      "required_context": [
+        "user_id",
+        "bet_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.my_bets.cashout.04",
+      "domain": "Sports",
+      "group": "My Bets | 注单查询与结算 / Cashout | 提前结算",
+      "name": "Cashout金额怎么算？",
+      "examples": [
+        "Cashout金额怎么算？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "cashout_api",
+      "required_context": [
+        "user_id",
+        "bet_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.my_bets.cashout.05",
+      "domain": "Sports",
+      "group": "My Bets | 注单查询与结算 / Cashout | 提前结算",
+      "name": "为什么Cashout失败？",
+      "examples": [
+        "为什么Cashout失败？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "cashout_api",
+      "required_context": [
+        "user_id",
+        "bet_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.event_info.01",
+      "domain": "Sports",
+      "group": "赛事信息怎么看",
+      "name": "查看赛事信息",
+      "examples": [
+        "查看赛事信息"
+      ],
+      "need_realtime_data": true,
+      "data_source": "sports_catalog_api",
+      "required_context": [
+        "page_context",
+        "event_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet_rules.01",
+      "domain": "Sports",
+      "group": "体育投注规则",
+      "name": "有效流水",
+      "examples": [
+        "有效流水"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet_rules.02",
+      "domain": "Sports",
+      "group": "体育投注规则",
+      "name": "作废",
+      "examples": [
+        "作废"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "sports.bet_rules.03",
+      "domain": "Sports",
+      "group": "体育投注规则",
+      "name": "赔率接受",
+      "examples": [
+        "赔率接受"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.search.game.01",
+      "domain": "Casino",
+      "group": "找游戏",
+      "name": "按游戏名称",
+      "examples": [
+        "按游戏名称"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_catalog_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.search.game.02",
+      "domain": "Casino",
+      "group": "找游戏",
+      "name": "按游戏类型",
+      "examples": [
+        "按游戏类型"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_catalog_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.search.game.03",
+      "domain": "Casino",
+      "group": "找游戏",
+      "name": "按厂商",
+      "examples": [
+        "按厂商"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_catalog_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.search.game.04",
+      "domain": "Casino",
+      "group": "找游戏",
+      "name": "按标签",
+      "examples": [
+        "按标签"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_catalog_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.search.game.05",
+      "domain": "Casino",
+      "group": "找游戏",
+      "name": "按RTP",
+      "examples": [
+        "按RTP"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_catalog_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.search.game.06",
+      "domain": "Casino",
+      "group": "找游戏",
+      "name": "按波动性",
+      "examples": [
+        "按波动性"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_catalog_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.search.game.07",
+      "domain": "Casino",
+      "group": "找游戏",
+      "name": "按热门",
+      "examples": [
+        "按热门"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_catalog_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.search.game.08",
+      "domain": "Casino",
+      "group": "找游戏",
+      "name": "按上新",
+      "examples": [
+        "按上新"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_catalog_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.game.info.01",
+      "domain": "Casino",
+      "group": "游戏信息与玩法",
+      "name": "什么是RTP？",
+      "examples": [
+        "什么是RTP？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.game.info.02",
+      "domain": "Casino",
+      "group": "游戏信息与玩法",
+      "name": "什么是波动性？",
+      "examples": [
+        "什么是波动性？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.game.info.03",
+      "domain": "Casino",
+      "group": "游戏信息与玩法",
+      "name": "试玩模式是什么？",
+      "examples": [
+        "试玩模式是什么？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.game.info.04",
+      "domain": "Casino",
+      "group": "游戏信息与玩法",
+      "name": "真钱模式是什么？",
+      "examples": [
+        "真钱模式是什么？"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.provider.01",
+      "domain": "Casino",
+      "group": "游戏厂商",
+      "name": "查找厂商",
+      "examples": [
+        "查找厂商"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_catalog_api",
+      "required_context": [
+        "page_context",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.provider.02",
+      "domain": "Casino",
+      "group": "游戏厂商",
+      "name": "厂商下的游戏",
+      "examples": [
+        "厂商下的游戏"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_catalog_api",
+      "required_context": [
+        "page_context",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.provider.03",
+      "domain": "Casino",
+      "group": "游戏厂商",
+      "name": "当下地区是否可用",
+      "examples": [
+        "当下地区是否可用"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_catalog_api",
+      "required_context": [
+        "page_context",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.history.01",
+      "domain": "Casino",
+      "group": "我的游戏记录",
+      "name": "投注记录",
+      "examples": [
+        "投注记录"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_history_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.history.02",
+      "domain": "Casino",
+      "group": "我的游戏记录",
+      "name": "游戏结果",
+      "examples": [
+        "游戏结果"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_history_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.history.03",
+      "domain": "Casino",
+      "group": "我的游戏记录",
+      "name": "有效流水",
+      "examples": [
+        "有效流水"
+      ],
+      "need_realtime_data": true,
+      "data_source": "casino_history_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.rules.01",
+      "domain": "Casino",
+      "group": "游戏玩法知识",
+      "name": "百家乐",
+      "examples": [
+        "百家乐"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.rules.02",
+      "domain": "Casino",
+      "group": "游戏玩法知识",
+      "name": "二十一点",
+      "examples": [
+        "二十一点"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.rules.03",
+      "domain": "Casino",
+      "group": "游戏玩法知识",
+      "name": "轮盘",
+      "examples": [
+        "轮盘"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.rules.04",
+      "domain": "Casino",
+      "group": "游戏玩法知识",
+      "name": "老虎机",
+      "examples": [
+        "老虎机"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.rules.05",
+      "domain": "Casino",
+      "group": "游戏玩法知识",
+      "name": "扑克",
+      "examples": [
+        "扑克"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "casino.rules.06",
+      "domain": "Casino",
+      "group": "游戏玩法知识",
+      "name": "龙虎",
+      "examples": [
+        "龙虎"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.deposit.how_to.01",
+      "domain": "Wallet",
+      "group": "充值 / 怎么充值",
+      "name": "怎么充值？",
+      "examples": [
+        "怎么充值？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_deposit_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.deposit.how_to.02",
+      "domain": "Wallet",
+      "group": "充值 / 怎么充值",
+      "name": "可以用哪些币种充值？",
+      "examples": [
+        "可以用哪些币种充值？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_deposit_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.deposit.how_to.03",
+      "domain": "Wallet",
+      "group": "充值 / 怎么充值",
+      "name": "应该选择哪个充值网络？",
+      "examples": [
+        "应该选择哪个充值网络？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_deposit_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.deposit.how_to.04",
+      "domain": "Wallet",
+      "group": "充值 / 怎么充值",
+      "name": "最低充值金额是多少？",
+      "examples": [
+        "最低充值金额是多少？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_deposit_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.deposit.status.01",
+      "domain": "Wallet",
+      "group": "充值 / 充值进度与异常",
+      "name": "充值到哪一步了？",
+      "examples": [
+        "充值到哪一步了？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_deposit_api",
+      "required_context": [
+        "user_id",
+        "transaction_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.deposit.status.02",
+      "domain": "Wallet",
+      "group": "充值 / 充值进度与异常",
+      "name": "为什么充值失败？",
+      "examples": [
+        "为什么充值失败？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_deposit_api",
+      "required_context": [
+        "user_id",
+        "transaction_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.deposit.status.03",
+      "domain": "Wallet",
+      "group": "充值 / 充值进度与异常",
+      "name": "为什么充值还没到账？",
+      "examples": [
+        "为什么充值还没到账？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_deposit_api",
+      "required_context": [
+        "user_id",
+        "transaction_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.withdrawal.how_to.01",
+      "domain": "Wallet",
+      "group": "提现 / 怎么提现",
+      "name": "怎么提现？",
+      "examples": [
+        "怎么提现？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_withdrawal_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.withdrawal.how_to.02",
+      "domain": "Wallet",
+      "group": "提现 / 怎么提现",
+      "name": "支持的币种",
+      "examples": [
+        "支持的币种"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_withdrawal_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.withdrawal.how_to.03",
+      "domain": "Wallet",
+      "group": "提现 / 怎么提现",
+      "name": "网络选择",
+      "examples": [
+        "网络选择"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_withdrawal_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.withdrawal.how_to.04",
+      "domain": "Wallet",
+      "group": "提现 / 怎么提现",
+      "name": "最低金额",
+      "examples": [
+        "最低金额"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_withdrawal_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.withdrawal.how_to.05",
+      "domain": "Wallet",
+      "group": "提现 / 怎么提现",
+      "name": "手续费",
+      "examples": [
+        "手续费"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_withdrawal_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.withdrawal.requirements.01",
+      "domain": "Wallet",
+      "group": "提现 / 提现需要满足什么条件",
+      "name": "流水任务",
+      "examples": [
+        "流水任务"
+      ],
+      "need_realtime_data": true,
+      "data_source": "account_turnover_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.withdrawal.status.01",
+      "domain": "Wallet",
+      "group": "提现 / 提现进度与异常",
+      "name": "提现到哪一步了？",
+      "examples": [
+        "提现到哪一步了？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_withdrawal_api",
+      "required_context": [
+        "user_id",
+        "withdrawal_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.withdrawal.status.02",
+      "domain": "Wallet",
+      "group": "提现 / 提现进度与异常",
+      "name": "为什么提现还在等待？",
+      "examples": [
+        "为什么提现还在等待？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_withdrawal_api",
+      "required_context": [
+        "user_id",
+        "withdrawal_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.withdrawal.status.03",
+      "domain": "Wallet",
+      "group": "提现 / 提现进度与异常",
+      "name": "为什么提现被拒绝？",
+      "examples": [
+        "为什么提现被拒绝？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_withdrawal_api",
+      "required_context": [
+        "user_id",
+        "withdrawal_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.withdrawal.status.04",
+      "domain": "Wallet",
+      "group": "提现 / 提现进度与异常",
+      "name": "为什么提现失败？",
+      "examples": [
+        "为什么提现失败？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_withdrawal_api",
+      "required_context": [
+        "user_id",
+        "withdrawal_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.turnover.01",
+      "domain": "Wallet",
+      "group": "有效流水与提现要求",
+      "name": "什么是有效流水？",
+      "examples": [
+        "什么是有效流水？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "account_turnover_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.turnover.02",
+      "domain": "Wallet",
+      "group": "有效流水与提现要求",
+      "name": "总共需要多少有效流水？",
+      "examples": [
+        "总共需要多少有效流水？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "account_turnover_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.turnover.03",
+      "domain": "Wallet",
+      "group": "有效流水与提现要求",
+      "name": "已经完成多少有效流水？",
+      "examples": [
+        "已经完成多少有效流水？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "account_turnover_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.turnover.04",
+      "domain": "Wallet",
+      "group": "有效流水与提现要求",
+      "name": "还差多少有效流水？",
+      "examples": [
+        "还差多少有效流水？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "account_turnover_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.history.01",
+      "domain": "Wallet",
+      "group": "资金记录",
+      "name": "查找交易记录",
+      "examples": [
+        "查找交易记录"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_history_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.history.02",
+      "domain": "Wallet",
+      "group": "资金记录",
+      "name": "充值历史",
+      "examples": [
+        "充值历史"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_history_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.history.03",
+      "domain": "Wallet",
+      "group": "资金记录",
+      "name": "提现历史",
+      "examples": [
+        "提现历史"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_history_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "wallet.history.04",
+      "domain": "Wallet",
+      "group": "资金记录",
+      "name": "彩金历史",
+      "examples": [
+        "彩金历史"
+      ],
+      "need_realtime_data": true,
+      "data_source": "wallet_history_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.search.01",
+      "domain": "Promotion",
+      "group": "找活动",
+      "name": "进行中的活动",
+      "examples": [
+        "进行中的活动"
+      ],
+      "need_realtime_data": true,
+      "data_source": "promotion_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.search.02",
+      "domain": "Promotion",
+      "group": "找活动",
+      "name": "最新活动",
+      "examples": [
+        "最新活动"
+      ],
+      "need_realtime_data": true,
+      "data_source": "promotion_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.search.03",
+      "domain": "Promotion",
+      "group": "找活动",
+      "name": "即将结束的活动",
+      "examples": [
+        "即将结束的活动"
+      ],
+      "need_realtime_data": true,
+      "data_source": "promotion_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.rules.01",
+      "domain": "Promotion",
+      "group": "活动规则",
+      "name": "活动规则",
+      "examples": [
+        "活动规则"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.rules.02",
+      "domain": "Promotion",
+      "group": "活动规则",
+      "name": "活动奖励",
+      "examples": [
+        "活动奖励"
+      ],
+      "need_realtime_data": false,
+      "data_source": "ragflow",
+      "required_context": [],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.progress.01",
+      "domain": "Promotion",
+      "group": "活动参与与进度",
+      "name": "怎么参加",
+      "examples": [
+        "怎么参加"
+      ],
+      "need_realtime_data": true,
+      "data_source": "promotion_api",
+      "required_context": [
+        "user_id",
+        "promotion_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.progress.02",
+      "domain": "Promotion",
+      "group": "活动参与与进度",
+      "name": "我是否已经参加？",
+      "examples": [
+        "我是否已经参加？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "promotion_api",
+      "required_context": [
+        "user_id",
+        "promotion_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.progress.03",
+      "domain": "Promotion",
+      "group": "活动参与与进度",
+      "name": "活动完成到哪一步了？",
+      "examples": [
+        "活动完成到哪一步了？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "promotion_api",
+      "required_context": [
+        "user_id",
+        "promotion_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.progress.04",
+      "domain": "Promotion",
+      "group": "活动参与与进度",
+      "name": "为什么任务还没有完成？",
+      "examples": [
+        "为什么任务还没有完成？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "promotion_api",
+      "required_context": [
+        "user_id",
+        "promotion_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.reward.01",
+      "domain": "Promotion",
+      "group": "活动奖励",
+      "name": "我的奖励是什么状态？",
+      "examples": [
+        "我的奖励是什么状态？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "promotion_api",
+      "required_context": [
+        "user_id",
+        "promotion_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.reward.02",
+      "domain": "Promotion",
+      "group": "活动奖励",
+      "name": "为什么奖励还没到账？",
+      "examples": [
+        "为什么奖励还没到账？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "promotion_api",
+      "required_context": [
+        "user_id",
+        "promotion_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.reward.03",
+      "domain": "Promotion",
+      "group": "活动奖励",
+      "name": "奖励怎么领取？",
+      "examples": [
+        "奖励怎么领取？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "promotion_api",
+      "required_context": [
+        "user_id",
+        "promotion_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.reward.04",
+      "domain": "Promotion",
+      "group": "活动奖励",
+      "name": "为什么奖励过期？",
+      "examples": [
+        "为什么奖励过期？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "promotion_api",
+      "required_context": [
+        "user_id",
+        "promotion_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.coupon.01",
+      "domain": "Promotion",
+      "group": "优惠券",
+      "name": "查看可用的券",
+      "examples": [
+        "查看可用的券"
+      ],
+      "need_realtime_data": true,
+      "data_source": "coupon_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.coupon.02",
+      "domain": "Promotion",
+      "group": "优惠券",
+      "name": "如何使用券",
+      "examples": [
+        "如何使用券"
+      ],
+      "need_realtime_data": true,
+      "data_source": "coupon_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "promotion.coupon.03",
+      "domain": "Promotion",
+      "group": "优惠券",
+      "name": "查看过期的券",
+      "examples": [
+        "查看过期的券"
+      ],
+      "need_realtime_data": true,
+      "data_source": "coupon_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "vip.level.01",
+      "domain": "VIP",
+      "group": "我的VIP等级",
+      "name": "VIP等级是怎么划分的？",
+      "examples": [
+        "VIP等级是怎么划分的？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "vip_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "vip.level.02",
+      "domain": "VIP",
+      "group": "我的VIP等级",
+      "name": "升级需要满足什么条件？",
+      "examples": [
+        "升级需要满足什么条件？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "vip_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "vip.benefits.01",
+      "domain": "VIP",
+      "group": "我的VIP权益",
+      "name": "我现在有哪些权益？",
+      "examples": [
+        "我现在有哪些权益？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "vip_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "vip.benefits.02",
+      "domain": "VIP",
+      "group": "我的VIP权益",
+      "name": "这个权益有什么用？",
+      "examples": [
+        "这个权益有什么用？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "vip_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "vip.benefits.03",
+      "domain": "VIP",
+      "group": "我的VIP权益",
+      "name": "为什么这个权益还没解锁？",
+      "examples": [
+        "为什么这个权益还没解锁？"
+      ],
+      "need_realtime_data": true,
+      "data_source": "vip_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "support.feedback.01",
+      "domain": "Support",
+      "group": "反馈问题",
+      "name": "提交意见或问题反馈",
+      "examples": [
+        "提交意见或问题反馈"
+      ],
+      "need_realtime_data": true,
+      "data_source": "support_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": {
+        "type": "open_page",
+        "target": "/support/feedback"
+      },
+      "notes": ""
+    },
+    {
+      "id": "global.navigation.01",
+      "domain": "Global",
+      "group": "平台导航",
+      "name": "查找功能",
+      "examples": [
+        "查找功能"
+      ],
+      "need_realtime_data": true,
+      "data_source": "navigation_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": {
+        "type": "navigate",
+        "target": "resolved_by_navigation_api"
+      },
+      "notes": ""
+    },
+    {
+      "id": "global.navigation.02",
+      "domain": "Global",
+      "group": "平台导航",
+      "name": "打开模块",
+      "examples": [
+        "打开模块"
+      ],
+      "need_realtime_data": true,
+      "data_source": "navigation_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": {
+        "type": "navigate",
+        "target": "resolved_by_navigation_api"
+      },
+      "notes": ""
+    },
+    {
+      "id": "global.navigation.03",
+      "domain": "Global",
+      "group": "平台导航",
+      "name": "打开页面",
+      "examples": [
+        "打开页面"
+      ],
+      "need_realtime_data": true,
+      "data_source": "navigation_api",
+      "required_context": [
+        "page_context"
+      ],
+      "action": {
+        "type": "navigate",
+        "target": "resolved_by_navigation_api"
+      },
+      "notes": ""
+    },
+    {
+      "id": "global.search.01",
+      "domain": "Global",
+      "group": "全站查找",
+      "name": "查找内容",
+      "examples": [
+        "查找内容"
+      ],
+      "need_realtime_data": true,
+      "data_source": "global_search_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "global.search.02",
+      "domain": "Global",
+      "group": "全站查找",
+      "name": "最近活动",
+      "examples": [
+        "最近活动"
+      ],
+      "need_realtime_data": true,
+      "data_source": "global_search_api",
+      "required_context": [
+        "user_id",
+        "locale"
+      ],
+      "action": null,
+      "notes": ""
+    },
+    {
+      "id": "global.help.01",
+      "domain": "Global",
+      "group": "使用帮助",
+      "name": "联系客服",
+      "examples": [
+        "联系客服"
+      ],
+      "need_realtime_data": true,
+      "data_source": "support_api",
+      "required_context": [
+        "user_id"
+      ],
+      "action": {
+        "type": "open_page",
+        "target": "/support/contact"
+      },
+      "notes": ""
+    }
+  ],
+  "stats": {
+    "domain_count": 7,
+    "intent_count": 127,
+    "realtime_intent_count": 97,
+    "ragflow_intent_count": 30
+  }
+}
