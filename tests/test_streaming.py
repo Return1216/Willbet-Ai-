@@ -115,6 +115,30 @@ def test_answer_prompt_requires_warm_tone_and_evidence_priority():
     assert "不能编造" in system
 
 
+def test_answer_prompt_hides_internal_sources_and_resolves_rule_scope():
+    """回答模型只接收整理后的证据，并以平台规则作为唯一业务结论。"""
+    messages = _answer_messages(
+        "为什么不能提现？",
+        {
+            "data_source": "chroma",
+            "verified_data": {"remaining_turnover": "45 USDT"},
+            "platform_rules": ["WillBet 需要完成剩余有效流水后才能提现。"],
+            "industry_guidance": ["行业中通常也会设置流水条件。"],
+            "references": [{"source": "internal.md", "content": "不要直接暴露"}],
+            "knowledge_chunks": ["不要直接暴露"],
+        },
+    )
+    system = messages[0]["content"]
+    payload = json.loads(messages[1]["content"])
+
+    assert "不要向用户提及" in system
+    assert "平台规则优先" in system
+    assert "references" not in payload["context"]
+    assert "knowledge_chunks" not in payload["context"]
+    assert payload["context"]["platform_rules"] == ["WillBet 需要完成剩余有效流水后才能提现。"]
+    assert payload["context"]["industry_guidance"] == ["行业中通常也会设置流水条件。"]
+
+
 @pytest.mark.asyncio
 async def test_casual_mode_without_evidence_uses_answer_model():
     """日常闲聊没有知识片段时仍应交给回答模型自然处理。"""

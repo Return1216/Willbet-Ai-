@@ -27,7 +27,18 @@ def test_chunk_document_keeps_source_and_ordinal():
     assert chunks
     assert chunks[0].metadata["source"] == "guide.md"
     assert chunks[0].metadata["chunk_index"] == 0
+    assert chunks[0].metadata["rule_scope"] == "industry"
     assert all(chunk.text for chunk in chunks)
+
+
+def test_chunk_document_prioritizes_explicit_platform_rules():
+    """包含平台生效描述的片段应标记为平台规则。"""
+    doc = SourceDocument(Path("guide.md"), "WillBet 平台当前以系统返回结果为准。")
+
+    chunks = chunk_document(doc, max_chars=100, overlap=0)
+
+    assert chunks[0].metadata["rule_scope"] == "platform"
+    assert chunks[0].metadata["rule_priority"] > 0
 
 
 def test_retrieve_empty_collection_returns_empty_list(monkeypatch, tmp_path):

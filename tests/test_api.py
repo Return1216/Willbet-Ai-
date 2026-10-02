@@ -7,9 +7,10 @@ from types import SimpleNamespace
 from fastapi.testclient import TestClient
 
 from app.catalog import load_catalog
-from app.chat import AssistantDependencies
+from app.chat import AssistantDependencies, _build_knowledge_context
 from app.config import load_settings
 from app.main import create_app
+from app.retrieval import RetrievedChunk
 
 
 class RouterClient:
@@ -127,6 +128,20 @@ def test_casual_chat_skips_embedding_retrieval(monkeypatch):
 
     assert response.status_code == 200
     assert '"data_source":"none"' in response.text
+
+
+def test_platform_rules_are_separated_and_prioritized():
+    """平台规则应与行业说明分开，并在回答上下文中优先出现。"""
+    chunks = [
+        RetrievedChunk("行业说明", "guide.md", "industry", 0.98, {"rule_scope": "industry", "rule_priority": 50}),
+        RetrievedChunk("WillBet 平台规则", "guide.md", "platform", 0.70, {}),
+    ]
+
+    context = _build_knowledge_context(chunks)
+
+    assert context["platform_rules"] == ["WillBet 平台规则"]
+    assert context["industry_guidance"] == ["行业说明"]
+    assert context["knowledge_chunks"] == ["WillBet 平台规则", "行业说明"]
 
 class FailingAnswerClient:
     """模拟模型请求失败，供 SSE 错误路径测试。"""

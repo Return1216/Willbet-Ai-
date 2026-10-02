@@ -42,6 +42,30 @@ class RetrievedChunk:
 
 COLLECTION_NAME = "rag_agent_documents"
 
+_PLATFORM_MARKERS = (
+    "WillBet",
+    "平台",
+    "系统",
+    "后台配置",
+    "实时读取",
+    "以当前",
+    "以系统",
+    "以平台",
+    "供应商",
+)
+_INDUSTRY_MARKERS = ("行业", "通常", "一般情况下", "常见", "概念", "定义")
+
+
+def classify_rule_scope(text: str) -> tuple[str, int]:
+    """为知识片段标记平台/行业范围和回答优先级。"""
+
+    platform_hits = sum(marker in text for marker in _PLATFORM_MARKERS)
+    industry_hits = sum(marker in text for marker in _INDUSTRY_MARKERS)
+    # ponytail: 先用文档中的显式措辞分类；文档规模扩大后再换成手工元数据。
+    if platform_hits and platform_hits >= industry_hits:
+        return "platform", 100
+    return "industry", 50
+
 def iter_documents(root: Path) -> Iterator[SourceDocument]:
     """递归读取 documents 下的 Markdown/TXT，忽略其他扩展名。"""
 
@@ -71,10 +95,12 @@ def chunk_document(document: SourceDocument,max_chars=1200,overlap=150) -> list[
         for start in range(0,len(paragraph),max_chars-overlap):
             body=paragraph[start:start+max_chars]
             idx=len(chunks)
+            rule_scope, rule_priority = classify_rule_scope(f"{title}\n{body}")
             # 相对路径参与哈希，避免不同子目录里的同名文档出现 ID 冲突。
             chunk_id=hashlib.sha256(f'{source}:{idx}:{body}'.encode()).hexdigest()
             chunks.append(Chunk(chunk_id,body,{'source':source,'title':title,
-                'chunk_index':idx,'paragraph_index':paragraph_no}))
+                'chunk_index':idx,'paragraph_index':paragraph_no,
+                'rule_scope':rule_scope,'rule_priority':rule_priority}))
             if start+max_chars>=len(paragraph): break
     return chunks
 

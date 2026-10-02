@@ -29,6 +29,21 @@ def _content_from_chunk(chunk: Any) -> str:
     return str(getattr(delta, "content", None) or "")
 
 
+def _model_context(context: dict[str, Any]) -> dict[str, Any]:
+    """只把整理后的证据交给模型，隐藏检索实现字段。"""
+
+    industry_guidance = context.get("industry_guidance")
+    if industry_guidance is None:
+        industry_guidance = context.get("knowledge_chunks", [])
+    return {
+        "conversation_mode": context.get("conversation_mode", "business"),
+        "verified_data": context.get("verified_data", {}),
+        "platform_rules": context.get("platform_rules", []),
+        "industry_guidance": industry_guidance,
+        "actions": context.get("actions", []),
+    }
+
+
 def _answer_messages(question: str, context: dict[str, Any]) -> list[dict[str, str]]:
     """生成兼顾自然语气和事实边界的回答提示词。"""
 
@@ -39,10 +54,15 @@ def _answer_messages(question: str, context: dict[str, Any]) -> list[dict[str, s
                 "你是 WillBet AI，一位耐心、真诚、懂业务的中文陪伴助手。"
                 "回答语气温和、自然、有温度，先回应用户真正想解决的问题，再给清晰结论和下一步建议；"
                 "避免机械复述、冷冰冰的模板句和不必要的长篇大论。"
-                "业务问题必须遵守证据优先：verified_data 是平台实时数据的唯一依据，"
-                "knowledge_chunks 和 references 是平台规则与说明的依据。"
-                "不能编造余额、流水、订单状态、时间、金额、赔率或任何平台事实；"
-                "知识片段没有覆盖时要坦诚说明暂时没有找到依据，并引导用户补充信息或联系客服。"
+                "你收到的是内部证据，只能用来组织面向用户的回答；不要向用户提及知识库、检索、"
+                "上下文、参考片段、knowledge_chunks、references 或模型判断等内部实现。"
+                "知识片段只作为内部证据使用，不是回答对象。"
+                "业务事实优先级固定为：verified_data（平台实时数据）最高，其次是 platform_rules，最后是 industry_guidance。"
+                "platform_rules 非空时，只能以平台规则给出最终业务结论；industry_guidance 只能补充术语或背景，"
+                "不能和平台规则并列成另一个结论。也就是说，平台规则优先。"
+                "不能编造余额、流水、订单状态、时间、金额、赔率或任何平台事实。"
+                "证据不足时，要自然说明暂时无法确认，并引导用户补充页面提示、订单信息或联系客服。"
+                "同一个问题只给一个明确结论，不要把互相冲突的规则都交给用户自己选择。"
                 "当 conversation_mode 为 casual 时，可以自然进行问候、感谢和日常聊天，"
                 "但不要把闲聊内容说成平台事实，也不要借闲聊猜测用户账户状态。"
             ),
@@ -50,7 +70,7 @@ def _answer_messages(question: str, context: dict[str, Any]) -> list[dict[str, s
         {
             "role": "user",
             "content": json.dumps(
-                {"question": question, "context": context},
+                {"question": question, "context": _model_context(context)},
                 ensure_ascii=False,
             ),
         },
@@ -63,6 +83,8 @@ def _has_evidence(context: dict[str, Any]) -> bool:
     return bool(
         context.get("references")
         or context.get("knowledge_chunks")
+        or context.get("platform_rules")
+        or context.get("industry_guidance")
         or context.get("verified_data")
     )
 
@@ -112,7 +134,7 @@ async def stream_answer(
         and context.get("conversation_mode") != "casual"
     ):
         # 没有依据时不调用回答模型，避免模型凭空编造业务数据。
-        answer = "暂时没有找到足够的依据来回答这个问题。"
+        answer = "我暂时还无法确认这件事。你可以补充页面提示、订单信息或所在功能，我再帮你一起核对。"
         yield {"type": "token", "content": answer}
         yield {
             "type": "done",

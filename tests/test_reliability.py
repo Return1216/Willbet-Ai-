@@ -94,7 +94,7 @@ async def test_no_evidence_never_calls_model():
     d=IntentDecision('sports.rules.odds.01',1,False,[],None)
     events=[e async for e in stream_answer('x',d,{'data_source':'none','references':[]},S(chat=S(completions=S(create=create))))]
     assert events[-1]['type']=='done' and events[-1]['references']==[]
-    assert '依据' in events[-1]['answer']
+    assert '确认' in events[-1]['answer']
 
 @pytest.mark.asyncio
 async def test_errors_do_not_expose_upstream_secrets():

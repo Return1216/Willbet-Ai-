@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 from .catalog import Catalog
 from .config import Settings
 from .mock_platform import MockData, get_mock_data
-from .retrieval import RetrievedChunk, retrieve
+from .retrieval import RetrievedChunk, classify_rule_scope, retrieve
 from .router import IntentDecision, route_intent
 
 
@@ -55,6 +55,47 @@ class AssistantDependencies:
     answer_client: Any
     embedding_client: Any = None
     mock_data_fn: Callable[[str, dict[str, Any], dict[str, Any]], MockData] = get_mock_data
+
+
+def _build_knowledge_context(chunks: list[RetrievedChunk]) -> dict[str, Any]:
+    """把召回结果整理成平台规则优先的回答上下文。"""
+
+    def rule_info(chunk: RetrievedChunk) -> tuple[str, int]:
+        scope = chunk.metadata.get("rule_scope")
+        priority = chunk.metadata.get("rule_priority")
+        if scope is None or priority is None:
+            return classify_rule_scope(chunk.content)
+        return str(scope), int(priority)
+
+    annotated = [(chunk, *rule_info(chunk)) for chunk in chunks]
+    selected = sorted(
+        annotated,
+        key=lambda chunk: (
+            -chunk[2],
+            -(chunk[0].score if chunk[0].score is not None else -1),
+        ),
+    )[:5]
+    platform_rules = [chunk.content for chunk, scope, _ in selected if scope == "platform"]
+    industry_guidance = [
+        chunk.content for chunk, scope, _ in selected if scope != "platform"
+    ]
+    references = [
+        {
+            "source": chunk.source,
+            "chunk_id": chunk.chunk_id,
+            "score": chunk.score,
+            "content": chunk.content,
+            "rule_scope": scope,
+        }
+        for chunk, scope, _ in selected
+    ]
+    return {
+        "knowledge_chunks": [chunk.content for chunk, _, _ in selected],
+        "platform_rules": platform_rules,
+        "industry_guidance": industry_guidance,
+        "references": references,
+        "data_source": "chroma" if selected else "none",
+    }
 
 
 async def prepare_context(
@@ -106,22 +147,6 @@ async def prepare_context(
     if deps.embedding_client is not None:
         # 检索同样是同步 SDK 调用，因此放到线程中执行。
         chunks = await asyncio.to_thread(retrieve, request.question, deps.settings, deps.embedding_client, 20)
-    # 对外只暴露前 5 个片段；完整召回数量由检索层控制。
-    references = [
-        {
-            "source": chunk.source,
-            "chunk_id": chunk.chunk_id,
-            "score": chunk.score,
-            "content": chunk.content,
-        }
-        for chunk in chunks[:5]
-    ]
-    context.update(
-        {
-            "knowledge_chunks": [chunk.content for chunk in chunks[:5]],
-            "references": references,
-            "data_source": "chroma" if chunks else "none",
-            "actions": [decision.action] if decision.action else [],
-        }
-    )
+    context.update(_build_knowledge_context(chunks))
+    context["actions"] = [decision.action] if decision.action else []
     return decision, context
