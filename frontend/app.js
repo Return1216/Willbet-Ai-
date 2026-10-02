@@ -70,42 +70,45 @@ async function sendQuestion(question) {
   clearError();
   const answerBubble = appendMessage("assistant");
   answerBubble.parentElement.classList.add("pending");
-  let receivedToken = false;
-  const response = await fetch("/api/assistant/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
-    body: JSON.stringify({ question, session_id: sessionId, stream: true }),
-  });
-  if (!response.ok) throw new Error(`服务暂时不可用（${response.status}）`);
-  if (!response.body) throw new Error("浏览器不支持流式响应");
+  try {
+    let receivedToken = false;
+    const response = await fetch("/api/assistant/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+      body: JSON.stringify({ question, session_id: sessionId, stream: true }),
+    });
+    if (!response.ok) throw new Error(`服务暂时不可用（${response.status}）`);
+    if (!response.body) throw new Error("浏览器不支持流式响应");
 
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-  let completed = false;
-  while (!completed) {
-    const { value, done } = await reader.read();
-    buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
-    const frames = buffer.split("\n\n");
-    buffer = frames.pop() || "";
-    for (const frame of frames) {
-      const event = readEvent(frame);
-      if (!event) continue;
-      if (event === "done-marker") { completed = true; break; }
-      if (event.type === "token") { answerBubble.textContent += event.content || ""; receivedToken = true; }
-      if (event.type === "clarification") { answerBubble.textContent = event.content || ""; receivedToken = true; }
-      if (event.type === "error") throw new Error(event.message || "助手暂时无法回答");
-      if (event.type === "done") {
-        if (!receivedToken && event.answer) answerBubble.textContent = event.answer;
-        completed = true;
-        break;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let completed = false;
+    while (!completed) {
+      const { value, done } = await reader.read();
+      buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+      const frames = buffer.split("\n\n");
+      buffer = frames.pop() || "";
+      for (const frame of frames) {
+        const event = readEvent(frame);
+        if (!event) continue;
+        if (event === "done-marker") { completed = true; break; }
+        if (event.type === "token") { answerBubble.textContent += event.content || ""; receivedToken = true; }
+        if (event.type === "clarification") { answerBubble.textContent = event.content || ""; receivedToken = true; }
+        if (event.type === "error") throw new Error(event.message || "助手暂时无法回答");
+        if (event.type === "done") {
+          if (!receivedToken && event.answer) answerBubble.textContent = event.answer;
+          completed = true;
+          break;
+        }
       }
+      messages.scrollTop = messages.scrollHeight;
+      if (done) break;
     }
-    messages.scrollTop = messages.scrollHeight;
-    if (done) break;
+    if (!answerBubble.textContent.trim()) answerBubble.textContent = "暂时没有得到回答，请稍后再试。";
+  } finally {
+    answerBubble.parentElement.classList.remove("pending");
   }
-  if (!answerBubble.textContent.trim()) answerBubble.textContent = "暂时没有得到回答，请稍后再试。";
-  answerBubble.parentElement.classList.remove("pending");
 }
 
 launcher.addEventListener("click", () => setOpen(panel.hidden));
@@ -131,7 +134,6 @@ form.addEventListener("submit", async (event) => {
   } catch (error) {
     showError(error instanceof Error ? error.message : "请求失败，请稍后再试");
   } finally {
-    answerBubble.parentElement.classList.remove("pending");
     setBusy(false);
     questionInput.focus();
   }

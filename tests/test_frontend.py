@@ -48,8 +48,18 @@ def test_widget_references_streaming_assets_and_endpoint():
     assert 'src="/app.js"' in page.text
     assert "/api/assistant/chat" in script.text
     assert "text/event-stream" in script.text
-    assert script.text.count('classList.remove("pending")') >= 2
+    assert script.text.count('classList.remove("pending")') == 1
     assert "[hidden]" in styles.text
+
+
+def test_submit_cleanup_does_not_use_send_question_local_state():
+    """提交完成后必须能执行 setBusy(false)，不能引用局部回答气泡变量。"""
+    root = Path(__file__).resolve().parents[1]
+    script = (root / "frontend" / "app.js").read_text(encoding="utf-8")
+    submit_handler = script.split('form.addEventListener("submit"', 1)[1]
+
+    assert "answerBubble" not in submit_handler
+    assert "setBusy(false)" in submit_handler
 
 
 def test_missing_frontend_entry_fails_startup(tmp_path):
