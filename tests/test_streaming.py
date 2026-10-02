@@ -113,6 +113,9 @@ def test_answer_prompt_requires_warm_tone_and_evidence_priority():
     assert "实时数据" in system
     assert "知识片段" in system
     assert "不能编造" in system
+    assert "WillBet 官方 AI 助手" in system
+    assert "WillBet 平台" in system
+    assert '禁止使用“你们平台”' in system
 
 
 def test_answer_prompt_hides_internal_sources_and_resolves_rule_scope():
