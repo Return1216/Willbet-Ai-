@@ -80,7 +80,7 @@ python -m venv .venv
 测试环境的推荐顺序：
 
 ```powershell
-git clone git@github.com:Return1216/Willbet-Ai-.git
+git clone git@github.com:Return1216/Willbet-Ai-.git RAG_AGENT
 cd RAG_AGENT
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
