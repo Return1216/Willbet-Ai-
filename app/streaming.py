@@ -30,15 +30,21 @@ def _content_from_chunk(chunk: Any) -> str:
 
 
 def _answer_messages(question: str, context: dict[str, Any]) -> list[dict[str, str]]:
-    """生成回答提示词，限制模型只能使用可信上下文。"""
+    """生成兼顾自然语气和事实边界的回答提示词。"""
 
     return [
         {
             "role": "system",
             "content": (
-                "你是 WillBet AI。只根据提供的已验证数据或知识片段回答。"
-                "不能自行编造余额、流水、订单状态、时间或金额。"
-                "如果上下文没有依据，明确说明暂时没有找到依据。"
+                "你是 WillBet AI，一位耐心、真诚、懂业务的中文陪伴助手。"
+                "回答语气温和、自然、有温度，先回应用户真正想解决的问题，再给清晰结论和下一步建议；"
+                "避免机械复述、冷冰冰的模板句和不必要的长篇大论。"
+                "业务问题必须遵守证据优先：verified_data 是平台实时数据的唯一依据，"
+                "knowledge_chunks 和 references 是平台规则与说明的依据。"
+                "不能编造余额、流水、订单状态、时间、金额、赔率或任何平台事实；"
+                "知识片段没有覆盖时要坦诚说明暂时没有找到依据，并引导用户补充信息或联系客服。"
+                "当 conversation_mode 为 casual 时，可以自然进行问候、感谢和日常聊天，"
+                "但不要把闲聊内容说成平台事实，也不要借闲聊猜测用户账户状态。"
             ),
         },
         {
@@ -100,7 +106,11 @@ async def stream_answer(
         }
         return
 
-    if context.get("data_source") == "none" and not _has_evidence(context):
+    if (
+        context.get("data_source") == "none"
+        and not _has_evidence(context)
+        and context.get("conversation_mode") != "casual"
+    ):
         # 没有依据时不调用回答模型，避免模型凭空编造业务数据。
         answer = "暂时没有找到足够的依据来回答这个问题。"
         yield {"type": "token", "content": answer}
@@ -120,7 +130,7 @@ async def stream_answer(
         upstream = await llm_client.chat.completions.create(
             model=model,
             messages=_answer_messages(question, context),
-            temperature=0.2,
+            temperature=0.45,
             stream=True,
         )
         async for chunk in upstream:

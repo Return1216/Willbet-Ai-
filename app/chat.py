@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import asyncio
+import re
 from dataclasses import dataclass
 from typing import Any, Callable
 
@@ -16,6 +17,20 @@ from .config import Settings
 from .mock_platform import MockData, get_mock_data
 from .retrieval import RetrievedChunk, retrieve
 from .router import IntentDecision, route_intent
+
+
+_CASUAL_PATTERNS = (
+    r"^(你好|您好|嗨|哈喽|hello|hi|hey|早上好|晚上好|晚安)[!！,，。.?？\s]*$",
+    r"^(谢谢|感谢|辛苦了|多谢)[!！,，。.?？\s]*$",
+    r"^(你是谁|你能做什么|你叫什么|在吗|陪我聊聊|讲个笑话)[!！,，。.?？\s]*$",
+)
+
+
+def is_casual_chat(question: str) -> bool:
+    """识别明确的日常寒暄，避免把它们误当成平台业务查询。"""
+
+    normalized = re.sub(r"\s+", "", question).strip().lower()
+    return any(re.fullmatch(pattern, normalized) for pattern in _CASUAL_PATTERNS)
 
 
 class AssistantRequest(BaseModel):
@@ -64,7 +79,13 @@ async def prepare_context(
         "references": [],
         "data_source": "none",
         "actions": [],
+        "conversation_mode": "business",
     }
+    if is_casual_chat(request.question):
+        # 闲聊不触发平台数据查询，即使路由模型误选了业务意图也要回到安全的对话模式。
+        decision = IntentDecision("global.fallback", decision.confidence, False, [], None)
+        context["conversation_mode"] = "casual"
+        return decision, context
     if decision.clarification:
         # 先澄清问题，此路径不访问 Mock 或向量库。
         return decision, context

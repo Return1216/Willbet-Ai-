@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import pytest
 
 from app.router import IntentDecision
-from app.streaming import sse_encode, stream_answer
+from app.streaming import _answer_messages, sse_encode, stream_answer
 
 
 class FakeStream:
@@ -96,3 +96,35 @@ async def test_collect_answer_returns_done_payload():
 
     assert payload["answer"] == "完成"
     assert payload["session_id"] == "s2"
+
+
+def test_answer_prompt_requires_warm_tone_and_evidence_priority():
+    """回答提示词应同时约束语气和业务事实边界。"""
+    messages = _answer_messages(
+        "为什么还不能提现？",
+        {
+            "data_source": "chroma",
+            "knowledge_chunks": ["有效流水规则"],
+            "conversation_mode": "business",
+        },
+    )
+    system = messages[0]["content"]
+    assert "温和" in system
+    assert "实时数据" in system
+    assert "知识片段" in system
+    assert "不能编造" in system
+
+
+@pytest.mark.asyncio
+async def test_casual_mode_without_evidence_uses_answer_model():
+    """日常闲聊没有知识片段时仍应交给回答模型自然处理。"""
+    client = FakeClient(["你好，很高兴认识你！"])
+    events = [event async for event in stream_answer(
+        "你好",
+        IntentDecision("global.fallback", 0.99, False, [], None),
+        {"data_source": "none", "conversation_mode": "casual"},
+        client,
+    )]
+
+    assert events[-1]["type"] == "done"
+    assert events[-1]["answer"] == "你好，很高兴认识你！"

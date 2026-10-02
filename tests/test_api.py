@@ -51,7 +51,7 @@ class AnswerClient:
         return AnswerStream(self.content)
 
 
-def make_app(router_payload, answer_client=None):
+def make_app(router_payload, answer_client=None, embedding_client=None):
     """构造带固定路由和回答替身的 FastAPI 应用。"""
     # 使用假的路由和回答客户端，测试 HTTP 编排而不依赖远程模型。
     root = Path(__file__).resolve().parents[1]
@@ -61,7 +61,7 @@ def make_app(router_payload, answer_client=None):
         catalog=load_catalog(settings.catalog_path),
         router_client=RouterClient(router_payload),
         answer_client=answer_client or AnswerClient(),
-        embedding_client=None,
+        embedding_client=embedding_client,
     )
     return create_app(deps)
 
@@ -102,6 +102,31 @@ def test_low_confidence_does_not_call_mock_data():
     assert response.status_code == 200
     assert '"type":"clarification"' in response.text
     assert 'mock_platform' not in response.text
+
+
+def test_casual_chat_uses_answer_model_without_knowledge():
+    """问候语不应被固定的无依据提示拦截。"""
+    app = make_app({"intent": "global.fallback", "confidence": 0.99})
+    with TestClient(app) as client:
+        response = client.post("/api/assistant/chat", json={"question": "你好"})
+
+    assert response.status_code == 200
+    assert '"type":"token"' in response.text
+    assert "答案" in response.text
+
+
+def test_casual_chat_skips_embedding_retrieval(monkeypatch):
+    """闲聊即使配置了 Embedding，也不能召回无关知识片段。"""
+    def fail_retrieve(*args, **kwargs):
+        raise AssertionError("casual chat should not retrieve knowledge")
+
+    monkeypatch.setattr("app.chat.retrieve", fail_retrieve)
+    app = make_app({"intent": "global.fallback", "confidence": 0.99}, embedding_client=object())
+    with TestClient(app) as client:
+        response = client.post("/api/assistant/chat", json={"question": "你好"})
+
+    assert response.status_code == 200
+    assert '"data_source":"none"' in response.text
 
 class FailingAnswerClient:
     """模拟模型请求失败，供 SSE 错误路径测试。"""
