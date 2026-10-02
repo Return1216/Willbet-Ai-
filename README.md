@@ -40,6 +40,16 @@ EMBEDDING_DIMENSION=1024
 
 打开 `http://127.0.0.1:8000/docs` 可以查看接口文档。
 
+打开 `http://127.0.0.1:8000/` 可以直接使用右下角的 WillBet AI 聊天浮窗；`/docs` 仍然保留为 API 调试页面。浮窗与 API 使用同一个服务和同一个端口。
+
+临时给外部人员体验时，可以在另一个终端建立带密码的 ngrok HTTPS 链接：
+
+```powershell
+ngrok http 8000 --basic-auth "demo:replace-with-a-strong-password"
+```
+
+把 ngrok 输出的 HTTPS 地址发给体验者即可。浏览器会先要求输入 Basic Auth 用户名和密码；电脑、uvicorn 和 ngrok 停止后链接失效。
+
 ## 接口
 
 `POST /api/assistant/chat` 默认返回 SSE：
@@ -94,6 +104,7 @@ Copy-Item .env.example .env
 
 ```text
 app/                 服务代码
+frontend/            聊天浮窗页面（原生 HTML/CSS/JavaScript）
 catalog/             127 个意图目录
 documents/           本地 Markdown/TXT 知识
 storage/chroma/      持久化索引（自动生成，不提交 Git）

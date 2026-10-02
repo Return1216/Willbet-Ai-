@@ -41,8 +41,10 @@ def test_widget_references_streaming_assets_and_endpoint():
     with TestClient(make_app()) as client:
         page = client.get("/")
         script = client.get("/app.js")
+        styles = client.get("/styles.css")
 
     assert 'href="/styles.css"' in page.text
     assert 'src="/app.js"' in page.text
     assert "/api/assistant/chat" in script.text
     assert "text/event-stream" in script.text
+    assert "[hidden]" in styles.text
