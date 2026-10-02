@@ -7,3 +7,5 @@ storage/chroma/*
 !storage/chroma/.gitkeep
 documents/*
 !documents/.gitkeep
+!documents/*.md
+!documents/*.txt

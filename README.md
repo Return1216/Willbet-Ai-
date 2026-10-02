@@ -75,18 +75,17 @@ python -m venv .venv
 - 修改 Embedding 服务地址、模型名或向量维度
 - 删除 `storage/chroma/` 或清空测试环境持久化卷
 
-当前 Git 忽略 `documents/` 中的实际知识库文件，因此合并代码后要通过压缩包、部署脚本或其他发布流程同步文档。如果文档允许进入代码仓库，也可以调整 `.gitignore` 让 Markdown/TXT 文件随代码提交。
+仓库会提交 `documents/` 下的 Markdown/TXT 知识文件；`.env`、虚拟环境和自动生成的向量索引仍然不会提交。新增或修改知识文件后，在测试环境重新执行 `app.ingest` 即可。
 
 测试环境的推荐顺序：
 
 ```powershell
-git clone <repository-url>
+git clone git@github.com:Return1216/Willbet-Ai-.git
 cd RAG_AGENT
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 Copy-Item .env.example .env
 # 编辑 .env，填写 DeepSeek、Embedding Key 和对应的 Base URL/Model
-# 把知识库 .md/.txt 文件复制到 documents/
 .\.venv\Scripts\python.exe -m app.ingest
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
