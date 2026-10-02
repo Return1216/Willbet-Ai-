@@ -131,6 +131,7 @@ form.addEventListener("submit", async (event) => {
   } catch (error) {
     showError(error instanceof Error ? error.message : "请求失败，请稍后再试");
   } finally {
+    answerBubble.parentElement.classList.remove("pending");
     setBusy(false);
     questionInput.focus();
   }

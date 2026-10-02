@@ -50,7 +50,6 @@ def _default_dependencies(settings: Settings) -> AssistantDependencies:
 def create_app(deps: AssistantDependencies | None = None) -> FastAPI:
     """创建 FastAPI 实例；传入依赖可用于测试或替换平台适配器。"""
 
-    injected_deps = deps is not None
     settings = deps.settings if deps else load_settings()
     deps = deps or _default_dependencies(settings)
     app = FastAPI(title="RAG_AGENT", version="0.1.0")
@@ -120,10 +119,8 @@ def create_app(deps: AssistantDependencies | None = None) -> FastAPI:
     frontend_dir = settings.root_dir / "frontend"
     index_file = frontend_dir / "index.html"
     if not index_file.is_file():
-        if not injected_deps:
-            raise RuntimeError(f"Frontend entry not found: {index_file}")
-    else:
-        app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+        raise RuntimeError(f"Frontend entry not found: {index_file}")
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
 
     return app
 

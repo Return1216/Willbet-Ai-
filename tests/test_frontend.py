@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.catalog import load_catalog
@@ -47,4 +48,20 @@ def test_widget_references_streaming_assets_and_endpoint():
     assert 'src="/app.js"' in page.text
     assert "/api/assistant/chat" in script.text
     assert "text/event-stream" in script.text
+    assert script.text.count('classList.remove("pending")') >= 2
     assert "[hidden]" in styles.text
+
+
+def test_missing_frontend_entry_fails_startup(tmp_path):
+    """任何运行配置缺少前端入口时都应明确失败。"""
+    settings = load_settings(tmp_path)
+    catalog_path = Path(__file__).resolve().parents[1] / "catalog" / "intent-tree-v1.json"
+    deps = AssistantDependencies(
+        settings=settings,
+        catalog=load_catalog(catalog_path),
+        router_client=None,
+        answer_client=None,
+    )
+
+    with pytest.raises(RuntimeError, match="Frontend entry not found"):
+        create_app(deps)

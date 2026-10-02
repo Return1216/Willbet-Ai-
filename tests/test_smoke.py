@@ -64,6 +64,7 @@ class AnswerClient:
 
 def make_app(root, intent):
     """从临时目录创建应用，避免读写用户现有知识库索引。"""
+    shutil.copytree(Path(__file__).resolve().parents[1] / "frontend", root / "frontend", dirs_exist_ok=True)
     settings = load_settings(root)
     deps = AssistantDependencies(
         settings=settings,
