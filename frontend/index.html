@@ -4,8 +4,48 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>WillBet AI</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
   </head>
   <body>
-    <main>WillBet AI</main>
+    <button class="launcher" id="launcher" type="button" aria-controls="chat-panel" aria-expanded="false">
+      <span class="launcher-icon" aria-hidden="true">✦</span>
+      <span>AI 助手</span>
+    </button>
+
+    <section class="chat-panel" id="chat-panel" aria-label="WillBet AI 助手" hidden>
+      <header class="chat-header">
+        <div>
+          <p class="eyebrow">WILLBET SUPPORT</p>
+          <h1>WillBet AI</h1>
+          <p class="subtitle">你的专属小助手</p>
+        </div>
+        <div class="header-actions">
+          <button class="icon-button" id="clear-button" type="button" aria-label="清空对话">⌫</button>
+          <button class="icon-button" id="close-button" type="button" aria-label="关闭助手">×</button>
+        </div>
+      </header>
+
+      <div class="messages" id="messages" aria-live="polite" aria-label="对话内容">
+        <div class="welcome-card">
+          <span class="welcome-mark" aria-hidden="true">✦</span>
+          <div>
+            <strong>你好，我是 WillBet AI</strong>
+            <p>可以问我提现、投注、赛事和游戏相关的问题。</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="error-message" id="error-message" role="alert" hidden></p>
+
+      <form class="composer" id="chat-form">
+        <label class="sr-only" for="question">输入问题</label>
+        <textarea id="question" rows="1" maxlength="1000" placeholder="输入你想了解的问题…" autocomplete="off"></textarea>
+        <button class="send-button" id="send-button" type="submit" aria-label="发送问题">
+          <span aria-hidden="true">↑</span>
+        </button>
+      </form>
+      <p class="footer-note">WillBet AI · 回答仅供参考</p>
+    </section>
   </body>
 </html>

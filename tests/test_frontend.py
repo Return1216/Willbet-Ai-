@@ -34,3 +34,15 @@ def test_root_serves_widget_and_health_survives():
     assert "WillBet AI" in page.text
     assert health.status_code == 200
     assert health.json() == {"status": "ok"}
+
+
+def test_widget_references_streaming_assets_and_endpoint():
+    """页面应加载自己的样式和脚本，脚本使用同源 SSE 接口。"""
+    with TestClient(make_app()) as client:
+        page = client.get("/")
+        script = client.get("/app.js")
+
+    assert 'href="/styles.css"' in page.text
+    assert 'src="/app.js"' in page.text
+    assert "/api/assistant/chat" in script.text
+    assert "text/event-stream" in script.text
